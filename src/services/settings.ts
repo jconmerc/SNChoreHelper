@@ -1,4 +1,4 @@
-import { WebClient } from '@slack/bolt';
+import type { WebClient } from '../types/slack';
 import * as queries from '../db/queries';
 import { resolveUserId, resolveConversationId, getUserDisplayName, getChannelDisplayName } from '../slack/resolvers';
 import { settingsUpdatedMessage, errorMessage } from '../slack/messages';

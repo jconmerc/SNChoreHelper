@@ -1,7 +1,7 @@
-import { Block, KnownBlock } from '@slack/bolt';
+import { Block, KnownBlock, SectionBlock, DividerBlock, ActionsBlock } from '@slack/bolt';
 import { Chore } from '../db/queries';
 
-export function helpMessage(): Block[] {
+export function helpMessage(): KnownBlock[] {
   return [
     {
       type: 'section',
@@ -16,11 +16,11 @@ export function helpMessage(): Block[] {
           '• `help` - Show this help message\n\n' +
           'You can also reply to a reminder with "done" and attach a PNG as proof.',
       },
-    },
+    } as SectionBlock,
   ];
 }
 
-export function choreAddedMessage(choreId: number, title: string, dueAt: Date, assignee: string): Block[] {
+export function choreAddedMessage(choreId: number, title: string, dueAt: Date, assignee: string): KnownBlock[] {
   return [
     {
       type: 'section',
@@ -28,11 +28,11 @@ export function choreAddedMessage(choreId: number, title: string, dueAt: Date, a
         type: 'mrkdwn',
         text: `✅ *Chore added*\n\n*ID:* ${choreId}\n*Title:* ${title}\n*Due:* ${formatDate(dueAt)}\n*Assignee:* <@${assignee}>`,
       },
-    },
+    } as SectionBlock,
   ];
 }
 
-export function choresListMessage(chores: Chore[], assigneeNames: Map<string, string>): Block[] {
+export function choresListMessage(chores: Chore[], assigneeNames: Map<string, string>): KnownBlock[] {
   if (chores.length === 0) {
     return [
       {
@@ -41,21 +41,21 @@ export function choresListMessage(chores: Chore[], assigneeNames: Map<string, st
           type: 'mrkdwn',
           text: 'No open chores found.',
         },
-      },
+      } as SectionBlock,
     ];
   }
 
-  const blocks: Block[] = [
+  const blocks: KnownBlock[] = [
     {
       type: 'section',
       text: {
         type: 'mrkdwn',
         text: `*Open Chores (${chores.length})*`,
       },
-    },
+    } as SectionBlock,
     {
       type: 'divider',
-    },
+    } as DividerBlock,
   ];
 
   for (const chore of chores) {
@@ -68,13 +68,13 @@ export function choresListMessage(chores: Chore[], assigneeNames: Map<string, st
           `Assignee: <@${chore.assignee_user_id}>\n` +
           `Due: ${formatDate(chore.due_at)}`,
       },
-    });
+    } as SectionBlock);
   }
 
   return blocks;
 }
 
-export function reminderMessage(chore: Chore): Block[] {
+export function reminderMessage(chore: Chore): KnownBlock[] {
   const isOverdue = new Date(chore.due_at) < new Date();
   const statusText = isOverdue ? '*OVERDUE*' : 'Due soon';
 
@@ -88,7 +88,7 @@ export function reminderMessage(chore: Chore): Block[] {
           `Chore ID: ${chore.id}\n\n` +
           'Reply with a PNG to attach proof, or click the button below.',
       },
-    },
+    } as SectionBlock,
     {
       type: 'actions',
       elements: [
@@ -103,11 +103,11 @@ export function reminderMessage(chore: Chore): Block[] {
           value: chore.id.toString(),
         },
       ],
-    },
+    } as ActionsBlock,
   ];
 }
 
-export function choreDoneMessage(choreId: number): Block[] {
+export function choreDoneMessage(choreId: number): KnownBlock[] {
   return [
     {
       type: 'section',
@@ -115,11 +115,11 @@ export function choreDoneMessage(choreId: number): Block[] {
         type: 'mrkdwn',
         text: `✅ Chore ${choreId} marked as done!`,
       },
-    },
+    } as SectionBlock,
   ];
 }
 
-export function settingsUpdatedMessage(type: 'manager' | 'destination', value: string): Block[] {
+export function settingsUpdatedMessage(type: 'manager' | 'destination', value: string): KnownBlock[] {
   return [
     {
       type: 'section',
@@ -127,11 +127,11 @@ export function settingsUpdatedMessage(type: 'manager' | 'destination', value: s
         type: 'mrkdwn',
         text: `✅ Settings updated: ${type} set to ${value}`,
       },
-    },
+    } as SectionBlock,
   ];
 }
 
-export function errorMessage(text: string): Block[] {
+export function errorMessage(text: string): KnownBlock[] {
   return [
     {
       type: 'section',
@@ -139,7 +139,7 @@ export function errorMessage(text: string): Block[] {
         type: 'mrkdwn',
         text: `❌ ${text}`,
       },
-    },
+    } as SectionBlock,
   ];
 }
 
@@ -149,7 +149,7 @@ export function proofForwardMessage(
   submittedByName: string,
   submittedAt: Date,
   hasFile: boolean
-): Block[] {
+): KnownBlock[] {
   return [
     {
       type: 'section',
@@ -162,12 +162,12 @@ export function proofForwardMessage(
           `*Completed at:* ${formatDate(submittedAt)}\n` +
           (hasFile ? `*Proof:* Attached below` : ''),
       },
-    },
+    } as SectionBlock,
   ];
 }
 
-export function chooseChoreMessage(chores: Chore[]): Block[] {
-  const blocks: Block[] = [
+export function chooseChoreMessage(chores: Chore[]): KnownBlock[] {
+  const blocks: KnownBlock[] = [
     {
       type: 'section',
       text: {
@@ -175,7 +175,7 @@ export function chooseChoreMessage(chores: Chore[]): Block[] {
         text: 'Multiple open chores found. Please specify which one:\n\n' +
           chores.map(c => `*${c.id}* - ${c.title} (due ${formatDate(c.due_at)})`).join('\n'),
       },
-    },
+    } as SectionBlock,
   ];
   return blocks;
 }

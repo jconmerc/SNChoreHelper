@@ -1,4 +1,4 @@
-import { WebClient } from '@slack/bolt';
+import type { WebClient } from '../types/slack';
 import * as queries from '../db/queries';
 import { resolveUserId, getUserDisplayName } from '../slack/resolvers';
 import { choreAddedMessage, choresListMessage, errorMessage } from '../slack/messages';

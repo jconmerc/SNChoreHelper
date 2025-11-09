@@ -1,4 +1,4 @@
-import { WebClient } from '@slack/bolt';
+import type { WebClient } from '../types/slack';
 
 export async function resolveUserId(client: WebClient, mention: string): Promise<string | null> {
   // Remove @ if present
@@ -7,7 +7,7 @@ export async function resolveUserId(client: WebClient, mention: string): Promise
   try {
     const result = await client.users.list();
     const user = result.members?.find(
-      (m) => m.name === username || m.real_name?.toLowerCase() === username.toLowerCase()
+      (m: any) => m.name === username || m.real_name?.toLowerCase() === username.toLowerCase()
     );
     return user?.id || null;
   } catch (error) {
@@ -23,7 +23,7 @@ export async function resolveChannelId(client: WebClient, channelName: string): 
   try {
     const result = await client.conversations.list({ types: 'public_channel,private_channel' });
     const channel = result.channels?.find(
-      (c) => c.name === name
+      (c: any) => c.name === name
     );
     return channel?.id || null;
   } catch (error) {
