@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: chorebot
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: SLACK_BOT_TOKEN
+        sync: false
+      - key: SLACK_APP_TOKEN
+        sync: false
+      - key: SLACK_SIGNING_SECRET
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chorebot-db
+          property: connectionString
+      - key: TIMEZONE_DEFAULT
+        value: UTC
+      - key: REMINDER_INTERVAL_MINUTES
+        value: 15
+
+databases:
+  - name: chorebot-db
+    plan: free
+    databaseName: chorebot
+    user: chorebot

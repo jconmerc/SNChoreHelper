@@ -1,0 +1,27 @@
+{
+  "name": "chorebot",
+  "version": "1.0.0",
+  "description": "Minimal Slack Bot for managing chores",
+  "main": "dist/app.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "dev": "ts-node src/app.ts",
+    "migrate": "ts-node src/db/migrate.ts"
+  },
+  "keywords": ["slack", "bot", "chores"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@slack/bolt": "^3.17.1",
+    "pg": "^8.11.3",
+    "dotenv": "^16.3.1",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@types/pg": "^8.10.9",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  }
+}
