@@ -1,4 +1,5 @@
 import { App } from '@slack/bolt';
+import express from 'express';
 import dotenv from 'dotenv';
 import { setupMessageHandlers } from './handlers/messages';
 import { setupSlashHandlers } from './handlers/slash';
@@ -15,7 +16,7 @@ if (!process.env.SLACK_APP_TOKEN) {
   throw new Error('SLACK_APP_TOKEN environment variable is required');
 }
 
-const app = new App({
+const slackApp = new App({
   token: process.env.SLACK_BOT_TOKEN,
   appToken: process.env.SLACK_APP_TOKEN,
   socketMode: true,
@@ -23,18 +24,39 @@ const app = new App({
 });
 
 // Setup handlers
-setupMessageHandlers(app);
-setupSlashHandlers(app);
-setupActionHandlers(app);
+setupMessageHandlers(slackApp);
+setupSlashHandlers(slackApp);
+setupActionHandlers(slackApp);
 
 // Start reminder job
 const reminderIntervalMinutes = parseInt(process.env.REMINDER_INTERVAL_MINUTES || '15', 10);
-startReminderJob(app, reminderIntervalMinutes);
+startReminderJob(slackApp, reminderIntervalMinutes);
 
-// Start the app
+// Create Express app for health checks (required by Render)
+const httpApp = express();
+const PORT = process.env.PORT || 3000;
+
+httpApp.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', service: 'chorebot' });
+});
+
+httpApp.get('/', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    service: 'chorebot',
+    message: 'Chore Bot is running. This is a Socket Mode app - no HTTP endpoints needed.'
+  });
+});
+
+// Start HTTP server for Render health checks
+const server = httpApp.listen(PORT, () => {
+  console.log(`HTTP server listening on port ${PORT} for health checks`);
+});
+
+// Start the Slack app
 (async () => {
   try {
-    await app.start();
+    await slackApp.start();
     console.log('⚡️ Chore Bot is running!');
   } catch (error) {
     console.error('Failed to start app:', error);
@@ -45,6 +67,9 @@ startReminderJob(app, reminderIntervalMinutes);
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('Shutting down...');
-  await app.stop();
+  server.close(() => {
+    console.log('HTTP server closed');
+  });
+  await slackApp.stop();
   process.exit(0);
 });
